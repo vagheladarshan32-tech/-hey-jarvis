@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="gu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Hey Jarvis – Gujarati Voice Assistant</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#151e31;--accent:#38d9ff;--muted:#aab6cc}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#1b3150,#0b1020 55%);font-family:system-ui,-apple-system,sans-serif;color:#f6f8ff;min-height:100vh}
+main{max-width:560px;margin:auto;padding:24px 18px 40px}.top{text-align:center;padding:25px 0 18px}
+.logo{font-size:56px}.tag{color:var(--accent);font-weight:700;letter-spacing:.12em;font-size:12px}
+h1{margin:6px 0;font-size:34px}.sub{color:var(--muted);font-size:14px}
+.card{background:#151e31eF;border:1px solid #2c3a54;border-radius:22px;padding:18px;margin:14px 0;box-shadow:0 14px 35px #0005}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+select,button{font:inherit;border-radius:14px;border:1px solid #3b4c68;padding:13px;background:#0e1728;color:white;width:100%}
+button{cursor:pointer;font-weight:700}
+.mic{border:0;background:linear-gradient(120deg,#00b9e8,#6c5cff);font-size:20px;padding:18px;margin-top:12px}
+.mic.listening{background:linear-gradient(120deg,#ef476f,#ff8c42)}
+.status{padding:12px;border-radius:12px;background:#0d1627;color:#b9c8df;margin-top:12px;min-height:48px}
+.transcript{font-size:18px;min-height:36px;overflow-wrap:anywhere}
+.commands{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.commands button{font-size:14px;text-align:left;background:#0d1627}
+.note{font-size:13px;line-height:1.55;color:var(--muted)}
+.good{color:#7df0b0}.warn{color:#ffd166}
+footer{text-align:center;color:#7f8ca5;font-size:12px;margin-top:24px}
+</style>
+</head>
+<body>
+<main>
+ <header class="top">
+  <div class="logo">🤖</div><div class="tag">PERSONAL VOICE ASSISTANT</div>
+  <h1>Hey Jarvis</h1><div class="sub">ગુજરાતી અને હિન્દી વૉઇસ કમાન્ડ</div>
+ </header>
+ <section class="card">
+  <label for="lang">ભાષા પસંદ કરો / भाषा चुनें</label>
+  <select id="lang"><option value="gu-IN">ગુજરાતી</option><option value="hi-IN">हिन्दी</option><option value="en-IN">English (India)</option></select>
+  <button id="mic" class="mic">🎙️ સાંભળવાનું શરૂ કરો</button>
+  <div id="status" class="status">માઇક્રોફોન બટન દબાવો અને બોલો.</div>
+  <div style="margin-top:14px;color:var(--muted);font-size:12px">તમે કહ્યું / आपने कहा</div>
+  <div id="heard" class="transcript">—</div>
+  <div id="reply" class="note"></div>
+ </section>
+ <section class="card">
+  <b>આ કમાન્ડ અજમાવો</b>
+  <div class="commands" style="margin-top:12px">
+   <button data-cmd="youtube">▶ YouTube ખોલો</button>
+   <button data-cmd="google">🔎 Google પર શોધો</button>
+   <button data-cmd="whatsapp">💬 WhatsApp ખોલો</button>
+   <button data-cmd="maps">📍 Google Maps ખોલો</button>
+  </div>
+ </section>
+ <section class="card">
+  <b>મહત્વની મર્યાદા</b>
+  <p class="note">આ વેબ-વર્ઝન ત્યારે જ સાંભળે છે જ્યારે આ પેજ ખુલ્લું હોય અને સ્ક્રીન ચાલુ હોય. Android/Chrome વેબસાઇટને ફોન લોક થયા પછી સતત માઇક્રોફોન સાંભળવાની પરવાનગી આપતું નથી. આ પેજથી ફોન લોક કરવો પણ શક્ય નથી. તેના માટે અલગ Android એપ અને યોગ્ય સિસ્ટમ પરવાનગીઓ જરૂરી છે.</p>
+  <p class="note warn">વૉઇસ ઓળખ માટે ઇન્ટરનેટની જરૂર પડી શકે છે. કોઈ paid API key આ પેજમાં નથી.</p>
+ </section>
+ <footer>Prototype · તમારા ફોનમાં Chrome વડે ખોલો · માઇક્રોફોન પરવાનગી આપો</footer>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null, active=false;
+function say(t){$('#reply').textContent=t;}
+function openUrl(url){window.open(url,'_blank','noopener');}
+function runCommand(text){
+ const t=text.toLowerCase();
+ if(/youtube|યુટ્યુબ|यूट्यूब/.test(t)){say('YouTube ખોલી રહ્યો છું.');openUrl('https://www.youtube.com/');return;}
+ if(/whatsapp|વોટ્સએપ|व्हाट्सऐप/.test(t)){say('WhatsApp ખોલી રહ્યો છું.');openUrl('https://web.whatsapp.com/');return;}
+ if(/maps|નકશો|મેપ|मैप|नक्शा/.test(t)){say('Google Maps ખોલી રહ્યો છું.');openUrl('https://maps.google.com/');return;}
+ let q=text.replace(/^(hey jarvis|હે જાર્વિસ|જાર્વિસ|अरे जार्विस|हे जार्विस|जार्विस)[, ]*/i,'')
+ .replace(/(google પર શોધો|ગૂગલ પર શોધો|सर्च करो|खोजो)$/i,'').trim();
+ if(/search|શોધ|સર્ચ|खोज|ढूंढ/.test(t)||q.length>0){say('Google પર શોધી રહ્યો છું: '+q);openUrl('https://www.google.com/search?q='+encodeURIComponent(q));return;}
+ say('આ કમાન્ડ હજી ઉમેરેલો નથી. YouTube, WhatsApp, Maps અથવા Google Search બોલો.');
+}
+function start(){
+ if(!SR){$('#status').textContent='આ બ્રાઉઝરમાં Speech Recognition સપોર્ટ નથી. Android Chrome માં ખોલો.';return;}
+ rec=new SR();rec.lang=$('#lang').value;rec.continuous=true;rec.interimResults=true;
+ rec.onstart=()=>{active=true;$('#mic').classList.add('listening');$('#mic').textContent='⏹️ સાંભળવાનું બંધ કરો';$('#status').textContent='સાંભળું છું… હવે બોલો.';};
+ rec.onresult=e=>{let final='';let interim='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript;else interim+=e.results[i][0].transcript;}$('#heard').textContent=final||interim||'—';if(final)runCommand(final);};
+ rec.onerror=e=>{$('#status').textContent='માઇક્રોફોન/વૉઇસ ભૂલ: '+e.error+'. ફરી પ્રયાસ કરો.';};
+ rec.onend=()=>{active=false;$('#mic').classList.remove('listening');$('#mic').textContent='🎙️ સાંભળવાનું શરૂ કરો';};
+ rec.start();
+}
+$('#mic').onclick=()=>{if(active){rec.stop();return;}start();};
+document.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>{const c=b.dataset.cmd;const map={youtube:'https://www.youtube.com/',google:'https://www.google.com/',whatsapp:'https://web.whatsapp.com/',maps:'https://maps.google.com/'};say('પેજ ખોલી રહ્યો છું.');openUrl(map[c]);});
+</script>
+</body></html>
